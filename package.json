@@ -1,0 +1,26 @@
+{
+  "name": "wisky",
+  "version": "1.0.0",
+  "description": "Demo",
+  "main": "server.js",
+  "scripts": {
+    "test": "run dev"
+  },
+  "keywords": [
+    "REST_API",
+    "WISKY",
+    "TEST"
+  ],
+  "author": "Wiski",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "compression": "^1.7.4",
+    "cors": "^2.8.5",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
+    "mongodb": "^4.1.0",
+    "mysql": "^2.18.1",
+    "uuid": "^8.3.2"
+  }
+}
