@@ -1,100 +1,92 @@
-const pool = require("../Config/Database");
+const {GetCollection} = require("../Config/Database");
 
 module.exports = class {
+	constructor(){
+		
+	}
 	Add = async data => {
-		return new Promise((resolve, reject) => {
-			pool.getConnection((err, conn) => {
-				const Query = "INSERT INTO books(id, author, title) VALUES(?,?,?)";
-				const Params = [data.id, data.author, data.title];
-				conn.query(Query, Params, (err, results) => {
-					conn.release();
-					if (err) {
-						reject(err.message);
-					} else {
-						resolve("New Book added!");
-					}
-				});
-			});
+		console.log(data)
+		return new Promise(async (resolve, reject) => {
+			try{
+				let booksCollection = await GetCollection("Books")
+				await booksCollection.insertOne(data)
+				resolve("New Book Registered Sucessfully!")
+			}catch(err){
+				console.log(err)
+				reject(err.message)
+			}
 		});
 	};
 
 	GetAll = () => {
-		return new Promise((resolve, reject) => {
-			pool.getConnection((err, conn) => {
-				const Query = "SELECT * FROM books";
-				conn.query(Query, (err, results) => {
-					conn.release();
-					if (err) {
-						reject(err.message);
-					} else {
-						resolve(results);
-					}
-				});
-			});
+		return new Promise(async (resolve, reject) => {
+			try{
+				let booksCollection = await GetCollection("Books")
+				let results = await booksCollection.find().toArray()
+				resolve(results)
+			}catch(err){
+				reject(err.message)
+			}
 		});
 	};
 
 	GetOne = book_id => {
-		return new Promise((resolve, reject) => {
-			pool.getConnection((err, conn) => {
-				const Query = "SELECT * FROM books WHERE id = ?";
-				conn.query(Query, [book_id], (err, results) => {
-					conn.release();
-					if (err) {
-						reject(err.message);
-					} else {
-						if (results.length > 0) {
-							resolve(results[0]);
-						} else {
-							reject("Invalid Book ID");
-						}
-					}
-				});
-			});
+		return new Promise(async (resolve, reject) => {
+			console.log(book_id)
+			try{
+				let booksCollection = await GetCollection("Books")
+				let results = await booksCollection.findOne({"id":book_id})
+				console.log(results)
+				if(results && results != typeof undefined){
+					resolve(results)
+				}else{
+					reject("Invalid Book ID!")
+				}
+			}catch(err){
+				reject(err.message)
+			}
 		});
 	};
 
-	Update = data => {
-		return new Promise((resolve, reject) => {
-			pool.getConnection(async (err, conn) => {
-				try {
-					await this.GetOne(data.book_id);
-					const Query = "UPDATE books SET author = ?, title = ? WHERE id = ?";
-					const Params = [data.author, data.title, data.id];
-					conn.query(Query, Params, (err, results) => {
-						conn.release();
-						if (err) {
-							reject(err.message);
-						} else {
-							resolve("Book updated successfully!");
-						}
-					});
-				} catch (err) {
-					reject(err);
+	Update = (data, id) => {
+		console.log(data, id)
+		return new Promise(async (resolve, reject) => {
+			try{
+				let booksCollection = await GetCollection("Books")
+				let results = await booksCollection.findOneAndUpdate({id}, {
+					$set:{
+						title:data.title,
+						author:data.author
+					}
+				})
+				console.log(results)
+				if(results && results != typeof undefined){
+					resolve("Book Details Updated Successfully!")
+				}else{
+					reject("Invalid Book ID!")
 				}
-			});
+			}catch(err){
+				reject(err.message)
+			}
 		});
 	};
 
 	Delete = book_id => {
-		return new Promise((resolve, reject) => {
-			pool.getConnection(async (err, conn) => {
-				const Query = "DELETE FROM books WHERE id = ?";
-				const Params = [book_id];
-				try {
-					await this.GetOne(book_id);
-					conn.query(Query, Params, (err, results) => {
-						conn.release();
-						if (err) {
-							reject(err.message);
-						} else {
-							resolve("Book deleted successfully!");
-						}
-					});
-				} catch (err) {
-					reject(err);
+		return new Promise(async (resolve, reject) => {
+			
+			console.log(book_id)
+			try{
+				let booksCollection = await GetCollection("Books")
+				let results = await booksCollection.deleteOne({"id":book_id})
+				console.log(results)
+				if(results && results != typeof undefined){
+					resolve("Book Deleted Successfully!")
+				}else{
+					reject("Invalid Book ID!")
 				}
-			});
+			}catch(err){
+				reject(err.message)
+			}
 		});
 	};
 };
